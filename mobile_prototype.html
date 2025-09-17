@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Prototipo Móvil Avanzado - Airbnb</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+
+        :root {
+            --primary-color: #FF4778;
+            --background-color: #E0E5EC;
+            --text-color: #5A667A;
+            --shadow-light: #ffffff;
+            --shadow-dark: #a3b1c6;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .mobile-shell {
+            width: 100%;
+            max-width: 414px;
+            height: 896px;
+            background-color: var(--background-color);
+            box-shadow: 10px 10px 25px var(--shadow-dark), -10px -10px 25px var(--shadow-light);
+            border-radius: 40px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            border: 8px solid #D1D9E6;
+            position: relative;
+        }
+
+        header {
+            padding: 16px 24px;
+            background-color: var(--background-color);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .search-bar {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            border-radius: 30px;
+            box-shadow: 9px 9px 16px var(--shadow-dark), -9px -9px 16px var(--shadow-light);
+        }
+
+        .search-bar svg {
+            width: 20px;
+            height: 20px;
+            margin-right: 12px;
+            fill: var(--text-color);
+        }
+
+        .search-bar .text p {
+            margin: 0;
+        }
+        .search-bar .text .location {
+            font-weight: 600;
+            color: #333;
+        }
+        .search-bar .text .details {
+            font-size: 12px;
+        }
+
+        .total-price-toggle {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 24px;
+        }
+
+        .total-price-toggle label {
+            font-size: 16px;
+            font-weight: 500;
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 51px;
+            height: 31px;
+        }
+
+        .switch input { display: none; }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: var(--background-color);
+            box-shadow: inset 3px 3px 7px var(--shadow-dark), inset -3px -3px 7px var(--shadow-light);
+            transition: .4s;
+            border-radius: 34px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 23px; width: 23px;
+            left: 4px; bottom: 4px;
+            background-color: #E0E5EC;
+            box-shadow: 3px 3px 7px var(--shadow-dark), -3px -3px 7px var(--shadow-light);
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: var(--primary-color);
+            box-shadow: none;
+        }
+        
+        input:checked + .slider:before {
+            transform: translateX(20px);
+            background-color: white;
+            box-shadow: none;
+        }
+
+        main {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 0 24px;
+        }
+        
+        main::-webkit-scrollbar { width: 0; background: transparent; }
+
+        .listing-card {
+            margin-bottom: 30px;
+            border-radius: 20px;
+            overflow: hidden;
+            background: var(--background-color);
+            box-shadow: 9px 9px 16px var(--shadow-dark), -9px -9px 16px var(--shadow-light);
+            position: relative;
+        }
+        
+        .listing-card .image-container {
+            position: relative;
+        }
+
+        .listing-card img {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+            display: block;
+        }
+        
+        .heart-icon {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            width: 24px;
+            height: 24px;
+            cursor: pointer;
+            fill: rgba(0,0,0,0.5);
+            stroke: white;
+            stroke-width: 2;
+        }
+        
+        .carousel-dots {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+        }
+        .carousel-dots .dot {
+            width: 6px; height: 6px;
+            border-radius: 50%;
+            background-color: rgba(255,255,255,0.7);
+            margin: 0 3px;
+        }
+        .carousel-dots .dot.active {
+            background-color: white;
+        }
+
+        .listing-card .info {
+            padding: 16px;
+        }
+
+        .listing-card .rating {
+            font-weight: 600;
+            color: #222;
+        }
+
+        .listing-card h3 {
+            margin: 8px 0;
+            font-size: 18px;
+            font-weight: 600;
+            line-height: 1.4;
+        }
+
+        .listing-card .price {
+            margin-top: 12px;
+            font-size: 18px;
+            font-weight: 500;
+        }
+
+        .price .total-price {
+            font-weight: 700;
+            color: #333;
+        }
+
+        .price .nightly-price {
+            display: block;
+            color: var(--text-color);
+            font-size: 15px;
+            margin-top: 4px;
+        }
+        
+        .map-button {
+            position: absolute;
+            bottom: 100px; /* Above the main nav bar */
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 12px 24px;
+            border-radius: 30px;
+            background: #222;
+            color: white;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            cursor: pointer;
+            z-index: 20;
+        }
+        
+        .main-nav {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0 30px 0;
+            background: var(--background-color);
+            box-shadow: 0 -5px 15px rgba(163, 177, 198, 0.3);
+            border-top: 1px solid rgba(255,255,255,0.5);
+        }
+        
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            font-size: 10px;
+            cursor: pointer;
+        }
+        
+        .nav-item svg {
+            width: 24px; height: 24px;
+            fill: var(--text-color);
+        }
+        
+        .nav-item.active, .nav-item.active svg {
+            color: var(--primary-color);
+            fill: var(--primary-color);
+        }
+
+    </style>
+</head>
+<body>
+    <div class="mobile-shell">
+        <header>
+            <div class="search-bar">
+                <svg viewBox="0 0 32 32"><path d="M22.2,20.8H21l-0.7-0.7c2.2-2.5,3.5-5.9,3.5-9.5C23.8,4.8,19,0,13.4,0S3,4.8,3,10.6c0,5.8,4.8,10.6,10.4,10.6c3,0,5.8-1.3,7.7-3.4l0.7,0.7v1.4l8.1,8.1l2.3-2.3L22.2,20.8z M13.4,20.8c-5.5,0-10-4.5-10-10.1s4.5-10.1,10-10.1c5.5,0,10,4.5,10,10.1S18.9,20.8,13.4,20.8z"/></svg>
+                <div class="text">
+                    <p class="location">Barcelona</p>
+                    <p class="details">Cualquier semana • Añade huéspedes</p>
+                </div>
+            </div>
+        </header>
+        
+        <div class="total-price-toggle">
+            <label for="price-toggle">Mostrar precio total</label>
+            <label class="switch">
+                <input type="checkbox" id="price-toggle">
+                <span class="slider"></span>
+            </label>
+        </div>
+
+        <main id="listings-container">
+            <!-- Contenido dinámico -->
+        </main>
+
+        <div class="map-button">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="white"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+            <span>Mapa</span>
+        </div>
+
+        <footer class="main-nav">
+            <div class="nav-item active">
+                <svg viewBox="0 0 32 32"><path d="M22.2,20.8H21l-0.7-0.7c2.2-2.5,3.5-5.9,3.5-9.5C23.8,4.8,19,0,13.4,0S3,4.8,3,10.6c0,5.8,4.8,10.6,10.4,10.6c3,0,5.8-1.3,7.7-3.4l0.7,0.7v1.4l8.1,8.1l2.3-2.3L22.2,20.8z M13.4,20.8c-5.5,0-10-4.5-10-10.1s4.5-10.1,10-10.1c5.5,0,10,4.5,10,10.1S18.9,20.8,13.4,20.8z"/></svg>
+                <span>Explorar</span>
+            </div>
+            <div class="nav-item">
+                <svg viewBox="0 0 32 32"><path d="M28.3,13.8L16.6,2.1c-0.4-0.4-1-0.4-1.4,0L3.5,13.8c-0.4,0.4-0.4,1,0,1.4l11.7,11.7c0.4,0.4,1,0.4,1.4,0L28.3,15C28.7,14.8,28.7,14.2,28.3,13.8z M15.9,25.5l-11-11l11-11l11,11L15.9,25.5z"/></svg>
+                <span>Favoritos</span>
+            </div>
+            <div class="nav-item">
+                <svg viewBox="0 0 32 32"><path d="M31.6,14.3L0.4,0.1C0.3,0,0.1,0,0,0.1v13.1l13.8,2.8L0,18.8v13.1c0.1,0.1,0.3,0.1,0.4,0l31.2-14.2c0.2-0.1,0.3-0.3,0.3-0.5S31.8,14.4,31.6,14.3z"/></svg>
+                <span>Viajes</span>
+            </div>
+            <div class="nav-item">
+                <svg viewBox="0 0 32 32"><path d="M16,17.4c4.8,0,8.7-3.9,8.7-8.7S20.8,0,16,0S7.3,3.9,7.3,8.7S11.2,17.4,16,17.4z M16,2.2c3.6,0,6.5,2.9,6.5,6.5s-2.9,6.5-6.5-6.5s-6.5-2.9-6.5-6.5S12.4,2.2,16,2.2z M28.9,32c-0.1,0-0.2,0-0.2-0.1c-2.2-1.8-4.9-2.8-7.8-2.8H11.2c-2.9,0-5.6,1.1-7.8,2.8c-0.3,0.2-0.7,0.2-1-0.1c-0.3-0.3-0.4-0.7-0.1-1C4.5,27.3,7.7,25,11.2,25h9.7c3.5,0,6.7,2.3,8.9,5.8c0.2,0.3,0.1,0.8-0.2,1C29.4,31.9,29.2,32,28.9,32z"/></svg>
+                <span>Perfil</span>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        const nights = 3;
+        const API_URL = "http://127.0.0.1:8000/api/listings";
+
+        async function fetchListings() {
+            try {
+                const response = await fetch(API_URL);
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                return await response.json();
+            } catch (error) {
+                console.error("No se pudieron cargar los alojamientos:", error);
+                const container = document.getElementById('listings-container');
+                container.innerHTML = `<p style="text-align:center; padding: 40px;">No se pudieron cargar los alojamientos. ¿Iniciaste el servidor del backend?</p>`;
+                return [];
+            }
+        }
+
+        function renderListings(listingsData, showTotal) {
+            const container = document.getElementById('listings-container');
+            container.innerHTML = '';
+            if (!listingsData || listingsData.length === 0) return;
+
+            listingsData.forEach(listing => {
+                const card = document.createElement('div');
+                card.className = 'listing-card';
+                const totalPrice = (listing.pricePerNight * nights) + listing.cleaningFee + listing.serviceFee;
+
+                let priceHTML = showTotal ? `
+                    <div class="price">
+                        <span class="total-price">$${totalPrice} total</span>
+                        <span class="nightly-price">$${listing.pricePerNight} / noche</span>
+                    </div>
+                ` : `
+                    <div class="price">
+                        <span class="total-price">$${listing.pricePerNight}</span> / noche
+                    </div>
+                `;
+
+                card.innerHTML = `
+                    <div class="image-container">
+                        <img src="https://images.unsplash.com/photo-1564013799919-ab600027ffc6?ixlib=rb-4.0.3&q=85&fm=jpg&crop=entropy&cs=srgb&w=600" alt="${listing.title}">
+                        <svg class="heart-icon" viewBox="0 0 32 32"><path d="M23.6,3.6c-3.4,0-6.4,2.1-7.6,5.1C14.8,5.7,11.8,3.6,8.4,3.6C3.8,3.6,0,7.4,0,12.1c0,8.1,15.1,18.3,15.4,18.5l0.6,0.4l0.6-0.4c0.3-0.2,15.4-10.3,15.4-18.5C32,7.4,28.2,3.6,23.6,3.6z"/></svg>
+                        <div class="carousel-dots">
+                            <span class="dot active"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span>
+                        </div>
+                    </div>
+                    <div class="info">
+                        <div class="rating">★ <b>${listing.rating}</b></div>
+                        <h3>${listing.title}</h3>
+                        ${priceHTML}
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        async function initializeApp() {
+            const listingsData = await fetchListings();
+            const toggle = document.getElementById('price-toggle');
+            renderListings(listingsData, toggle.checked);
+            toggle.addEventListener('change', function() {
+                renderListings(listingsData, this.checked);
+            });
+        }
+
+        initializeApp();
+    </script>
+</body>
+</html>
