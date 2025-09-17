@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Prototipo de UX con Navegación</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            padding-top: 20px;
+        }
+        .mobile-shell {
+            width: 100%;
+            max-width: 400px;
+            height: 800px;
+            background-color: white;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border-radius: 20px;
+            display: flex;
+            flex-direction: column;
+            position: relative; /* Necesario para fijar la barra de navegación abajo */
+            overflow: hidden;
+        }
+        .header {
+            padding: 16px;
+            border-bottom: 1px solid #e5e5e5;
+            flex-shrink: 0; /* Evita que el header se encoja */
+        }
+        .total-price-toggle {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px;
+            background-color: #f7f7f7;
+            border-bottom: 1px solid #e5e5e5;
+            flex-shrink: 0;
+        }
+        .total-price-toggle label { font-size: 16px; font-weight: 500; }
+        .switch { position: relative; display: inline-block; width: 51px; height: 31px; }
+        .switch input { display: none; }
+        .slider {
+            position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #ccc; transition: .4s; border-radius: 34px;
+        }
+        .slider:before {
+            position: absolute; content: ""; height: 23px; width: 23px; left: 4px; bottom: 4px;
+            background-color: white; transition: .4s; border-radius: 50%;
+        }
+        input:checked + .slider { background-color: #FF385C; }
+        input:checked + .slider:before { transform: translateX(20px); }
+        main {
+            overflow-y: auto;
+            padding: 0 16px;
+            flex-grow: 1; /* Permite que el main ocupe el espacio disponible */
+            padding-bottom: 80px; /* Espacio para no ser tapado por la barra de navegación */
+        }
+        .listing-card {
+            margin: 24px 0;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid #e5e5e5;
+        }
+        .listing-card img { width: 100%; height: 220px; object-fit: cover; display: block; }
+        .listing-card .info { padding: 12px; }
+        .listing-card .rating { font-weight: 500; }
+        .listing-card h3 { margin: 8px 0; font-size: 18px; font-weight: 600; }
+        .listing-card .price { margin-top: 8px; font-size: 16px; }
+        .price .total-price { font-weight: 700; }
+        .price .nightly-price { display: block; color: #717171; font-size: 14px; margin-top: 4px; }
+        
+        /* Estilos para la barra de navegación inferior */
+        .main-nav {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            width: 100%;
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0 20px 0;
+            background: #ffffff;
+            border-top: 1px solid #e5e5e5;
+        }
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            font-size: 10px;
+            color: #717171;
+        }
+        .nav-item svg {
+            width: 24px; height: 24px;
+            fill: #717171;
+        }
+        .nav-item.active, .nav-item.active svg {
+            color: #FF385C;
+            fill: #FF385C;
+        }
+    </style>
+</head>
+<body>
+    <div class="mobile-shell">
+        <div class="header">
+            <h1>Alojamientos</h1>
+        </div>
+        <div class="total-price-toggle">
+            <label for="price-toggle">Mostrar precio total</label>
+            <label class="switch">
+                <input type="checkbox" id="price-toggle">
+                <span class="slider"></span>
+            </label>
+        </div>
+        <main id="listings-container">
+            <!-- Contenido se generará aquí -->
+        </main>
+
+        <footer class="main-nav">
+            <div class="nav-item active">
+                <svg viewBox="0 0 32 32"><path d="M22.2,20.8H21l-0.7-0.7c2.2-2.5,3.5-5.9,3.5-9.5C23.8,4.8,19,0,13.4,0S3,4.8,3,10.6c0,5.8,4.8,10.6,10.4,10.6c3,0,5.8-1.3,7.7-3.4l0.7,0.7v1.4l8.1,8.1l2.3-2.3L22.2,20.8z M13.4,20.8c-5.5,0-10-4.5-10-10.1s4.5-10.1,10-10.1c5.5,0,10,4.5,10,10.1S18.9,20.8,13.4,20.8z"/></svg>
+                <span>Explorar</span>
+            </div>
+            <div class="nav-item">
+                <svg viewBox="0 0 32 32"><path d="M23.6,3.6c-3.4,0-6.4,2.1-7.6,5.1C14.8,5.7,11.8,3.6,8.4,3.6C3.8,3.6,0,7.4,0,12.1c0,8.1,15.1,18.3,15.4,18.5l0.6,0.4l0.6-0.4c0.3-0.2,15.4-10.3,15.4-18.5C32,7.4,28.2,3.6,23.6,3.6z"/></svg>
+                <span>Favoritos</span>
+            </div>
+            <div class="nav-item">
+                <svg viewBox="0 0 32 32"><path d="M31.6,14.3L0.4,0.1C0.3,0,0.1,0,0,0.1v13.1l13.8,2.8L0,18.8v13.1c0.1,0.1,0.3,0.1,0.4,0l31.2-14.2c0.2-0.1,0.3-0.3,0.3-0.5S31.8,14.4,31.6,14.3z"/></svg>
+                <span>Viajes</span>
+            </div>
+            <div class="nav-item">
+                <svg viewBox="0 0 32 32"><path d="M16,17.4c4.8,0,8.7-3.9,8.7-8.7S20.8,0,16,0S7.3,3.9,7.3,8.7S11.2,17.4,16,17.4z M16,2.2c3.6,0,6.5,2.9,6.5,6.5s-2.9,6.5-6.5-6.5s-6.5-2.9-6.5-6.5S12.4,2.2,16,2.2z M28.9,32c-0.1,0-0.2,0-0.2-0.1c-2.2-1.8-4.9-2.8-7.8-2.8H11.2c-2.9,0-5.6,1.1-7.8,2.8c-0.3,0.2-0.7,0.2-1-0.1c-0.3-0.3-0.4-0.7-0.1-1C4.5,27.3,7.7,25,11.2,25h9.7c3.5,0,6.7,2.3,8.9,5.8c0.2,0.3,0.1,0.8-0.2,1C29.4,31.9,29.2,32,28.9,32z"/></svg>
+                <span>Perfil</span>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        const listingsData = [
+            { id: 1, title: "Apartamento soleado con balcón", rating: 4.92, pricePerNight: 95, cleaningFee: 40, serviceFee: 55 },
+            { id: 2, title: "Loft moderno cerca del centro", rating: 4.88, pricePerNight: 120, cleaningFee: 50, serviceFee: 72 },
+            { id: 3, title: "Habitación privada en Gràcia", rating: 4.95, pricePerNight: 60, cleaningFee: 20, serviceFee: 31 }
+        ];
+        const nights = 3;
+
+        function renderListings(showTotal) {
+            const container = document.getElementById('listings-container');
+            container.innerHTML = '';
+
+            listingsData.forEach(listing => {
+                const card = document.createElement('div');
+                card.className = 'listing-card';
+                const totalPrice = (listing.pricePerNight * nights) + listing.cleaningFee + listing.serviceFee;
+
+                let priceHTML = showTotal ? `
+                    <div class="price">
+                        <span class="total-price">$${totalPrice} total</span>
+                        <span class="nightly-price">$${listing.pricePerNight} / noche</span>
+                    </div>
+                ` : `
+                    <div class="price">
+                        <span class="total-price">$${listing.pricePerNight}</span> / noche
+                    </div>
+                `;
+
+                card.innerHTML = `
+                    <img src="https://images.unsplash.com/photo-1564013799919-ab600027ffc6?ixlib=rb-4.0.3&q=85&fm=jpg&crop=entropy&cs=srgb&w=600" alt="${listing.title}">
+                    <div class="info">
+                        <div class="rating">★ ${listing.rating}</div>
+                        <h3>${listing.title}</h3>
+                        ${priceHTML}
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        const toggle = document.getElementById('price-toggle');
+        toggle.addEventListener('change', function() {
+            renderListings(this.checked);
+        });
+
+        renderListings(false);
+    </script>
+</body>
+</html>
