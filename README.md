@@ -50,3 +50,4 @@ Se ha desarrollado un prototipo interactivo y auto-contenido para demostrar esta
 ---
 
 *Este es un proyecto conceptual de diseño de UX y no está afiliado con Airbnb.*
+"# Seguimiento-IS" 
